@@ -1,114 +1,101 @@
-<div align="center">
+# AIOps Lambda Docker Demo
 
-# 🚀 AWS Lambda Docker Pipeline  
-**Container Image → ECR → Lambda Deployment**
+Container image → ECR → Lambda deployment demo for AIOps / Cloud learning.
 
-Cloud • Serverless • Docker • AIOps • CI/CD
-
----
-
-![AWS](https://img.shields.io/badge/AWS-Lambda-orange?logo=amazon-aws&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Container-blue?logo=docker&logoColor=white)
-![ECR](https://img.shields.io/badge/AWS-ECR-red?logo=amazon-aws&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.9-yellow?logo=python)
-![Status](https://img.shields.io/badge/Project-Active-brightgreen)
-
-</div>
+This repository contains a minimal example of running an AWS Lambda function from a Docker container image stored in Amazon ECR.  
+It is part of my journey into **Cloud, Serverless, CI/CD and AIOps**.
 
 ---
 
-## 📌 Proje Açıklaması
+## 🔍 Overview
 
-Bu proje, **Docker ile paketlenmiş bir AWS Lambda fonksiyonunun**  
-**AWS ECR’e pushlanması** ve ardından **Lambda’nın container image ile güncellenmesi** için oluşturulmuş modern bir örnektir.
+What this repo shows:
 
-AIOps ve Cloud öğrenme sürecimde:
-
-- Container tabanlı Lambda geliştirme  
-- ECR workflow yönetimi  
-- AWS CLI ile otomasyon  
-- Pipeline mantığını kavrama  
-- İleride Terraform ile tamamen otomatik altyapı kurma  
-
-gibi konuları pratik etmek için geliştirilmiştir.
+- Package a **Python Lambda function** into a **Docker image**
+- Push that image to **Amazon ECR**
+- Update an existing **AWS Lambda function** to use the new container image
+- Make the project ready for future:
+  - CI/CD pipelines (GitHub Actions / GitLab CI)
+  - Terraform-based IaC (planned under `/terraform` later)
 
 ---
 
-## 📁 Proje Yapısı
+## 📂 Repository Structure
 
-project-folder/
+```text
+aiops-lambda-docker-demo/
 │
-├── Dockerfile # Lambda için Docker image
-├── app.py # Python Lambda fonksiyonu
-├── requirements.txt # Pip bağımlılıkları
+├── Dockerfile          # Docker image for Lambda
+├── app.py              # Python Lambda function (handler)
+├── response.json       # Example test payload/response (optional)
 └── README.md
 
-yaml
-Kodu kopyala
-
----
-
-## 🧠 Lambda Fonksiyonu (Basit Örnek)
-
-```python
+🧠 Lambda Function
 def handler(event, context):
     return "Merhaba, ben Docker içinden çalışan Lambda fonksiyonuyum!"
-Bu fonksiyon Docker image içine gömülür → ECR’e pushlanır → Lambda container olarak çalıştırır.
+✅ Prerequisites
 
-🛠 Gereksinimler
-Teknoloji	Amaç
-Docker	Lambda’nın container olarak paketlenmesi
-AWS CLI	ECR & Lambda yönetimi
-IAM	ECR push + Lambda update izinleri
-(İsteğe bağlı) CI/CD	Otomatik build → push → deploy
+AWS account
 
-🐳 Docker Image Oluşturma
-bash
-Kodu kopyala
+AWS CLI configured (aws configure)
+
+Docker installed
+
+IAM permissions:
+
+ECR: push/pull
+
+Lambda: UpdateFunctionCode
+
+🐳 Build Docker Image
+# In the project root
 docker build -t lambda-docker-demo .
-🔐 ECR Login
-bash
-Kodu kopyala
+
+🔐 Login to ECR
 aws ecr get-login-password --region eu-west-1 \
 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com
-🏷️ Image Tag Verme
-bash
-Kodu kopyala
-docker tag lambda-docker-demo:latest <ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com/lambda-docker-demo:latest
-📦 Image Pushlama
-bash
-Kodu kopyala
-docker push <ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com/lambda-docker-demo:latest
-⚡ Lambda Güncelleme
-Yeni image pushlandıktan sonra Lambda’nın kodunu güncelle:
 
-bash
-Kodu kopyala
+
+Replace <ACCOUNT_ID> with your AWS account ID.
+🏷️ Tag the Image
+docker tag lambda-docker-demo:latest \
+  <ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com/lambda-docker-demo:latest
+
+📦 Push Image to ECR
+docker push \
+  <ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com/lambda-docker-demo:latest
+
+⚡ Update Lambda to Use the New Image
 aws lambda update-function-code \
   --function-name lambda-docker-demo \
   --image-uri <ACCOUNT_ID>.dkr.ecr.eu-west-1.amazonaws.com/lambda-docker-demo:latest
-🔄 CI/CD Pipeline (Örnek Akış)
-Kod push → GitHub/GitLab pipeline tetiklenir
 
-Docker image build edilir
 
-ECR’e pushlanır
+--function-name must match your existing Lambda function name.
 
-Lambda otomatik olarak güncellenir
+After this, Lambda will run using the new Docker image.
 
-CloudWatch log’ları ile doğrulama yapılır
+🔄 (Planned) CI/CD & Terraform
 
-Pipeline dosyasını daha sonra ekleyeceğim.
+Planned next steps for this repository:
 
-🌍 Yol Haritası
-Durum	Yapılacak
-✅	Docker + Lambda entegrasyonu
-✅	ECR push & Lambda update
-🔜	GitHub Actions pipeline
-🔜	Terraform ile tam otomatik altyapı (/terraform klasörü)
-🔜	CloudWatch + Alarm + AIOps gözlemlenebilirlik ekleme
+Add a CI/CD pipeline to:
 
-👤 Geliştirici
+Build Docker image on each commit
+
+Push to ECR automatically
+
+Update the Lambda function
+
+Add Terraform configuration under /terraform to:
+
+Create ECR repository
+
+Create/Update Lambda function
+
+Manage IAM roles and permissions
+
+👤 Author
+
 Ömer Can Gümüş
 AIOps • Cloud • DevOps • Serverless
-
